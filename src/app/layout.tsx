@@ -1,3 +1,5 @@
+import { Header } from '@/components/layout/header';
+import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -16,7 +18,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='ja'>
-      <body className={inter.className}>{children}</body>
+      <body className={cn(inter.className, 'flex min-h-svh flex-col')}>
+        <Header />
+        {children}
+      </body>
     </html>
   );
 }
