@@ -2,8 +2,8 @@
 CREATE TABLE "FileInfo" (
     "id" UUID NOT NULL,
     "fileName" TEXT NOT NULL,
-    "filePath" TEXT NOT NULL,
     "fileSize" INTEGER NOT NULL,
+    "key" TEXT NOT NULL,
     "mimeType" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE "FileInfo" (
 CREATE TABLE "Share" (
     "id" UUID NOT NULL,
     "shareLink" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "expiresAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -29,6 +29,9 @@ CREATE TABLE "ShareFileInfo" (
 
     CONSTRAINT "ShareFileInfo_pkey" PRIMARY KEY ("shareId","fileInfoId")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FileInfo_key_key" ON "FileInfo"("key");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Share_shareLink_key" ON "Share"("shareLink");

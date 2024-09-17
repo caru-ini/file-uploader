@@ -1,34 +1,28 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { FolderOpen, Minus } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-import { generateUniqueId } from '@/utils/generateUniqueId';
+import { client } from '@/lib/hono';
 
 export const DropZone = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({}); // { fileName: progress }
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const uploadFileToR2 = async (file: File) => {
-        const response = await fetch('/api/get-upload-url', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fileName: file.name,
-            fileType: file.type,
-          }),
-        });
-
-        const { signedUrl } = await response.json();
-
+        const response = await client.api.upload.$post({ json: { fileType: file.type } });
+        const { signedUrl, key } = await response.json();
+        if (!response.ok) {
+          console.error('Error generating signed URL');
+          return;
+        }
         const xhr = new XMLHttpRequest();
-        xhr.open('PUT', signedUrl);
+        xhr.open('PUT', signedUrl, true);
         xhr.setRequestHeader('Content-Type', file.type);
 
         xhr.upload.onprogress = (event) => {
@@ -48,8 +42,17 @@ export const DropZone = () => {
               ...prev,
               [file.name]: 100,
             }));
-            const uniqueId = generateUniqueId();
-            await saveFileInfoToDatabase({ uniqueId, fileName: file.name, fileType: file.type });
+            const fileInfo = await saveFileInfoToDatabase({
+              fileName: file.name,
+              mimeType: file.type,
+              fileSize: file.size,
+              key,
+            });
+            console.log(fileInfo);
+
+            if (fileInfo) {
+              setUploadedFiles((prevFiles) => [...prevFiles, fileInfo.key]);
+            }
           } else {
             console.error('File upload failed');
           }
@@ -66,23 +69,33 @@ export const DropZone = () => {
     [setUploadProgress, setFiles],
   );
 
-  const saveFileInfoToDatabase = async (params: {
-    uniqueId: string;
-    fileName: string;
-    fileType: string;
-  }) => {
-    const { uniqueId, fileName, fileType } = params;
-    await fetch('/api/save-file-info', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        uniqueId,
-        fileName,
-        fileType,
-      }),
+  const shareFiles = async () => {
+    const keys = uploadedFiles;
+    if (keys.length === 0) {
+      console.error('No files uploaded');
+      return;
+    }
+    const response = await client.api.share.$post({ json: { keys } });
+    if (!response.ok) {
+      console.error('Error creating share link');
+      return await response.json();
+    }
+
+    console.log('Share link created successfully');
+  };
+
+  const saveFileInfoToDatabase = async (params: Parameters<typeof client.api.files.$post>[0]) => {
+    const response = await client.api.files.$post({
+      json: params,
     });
+
+    if (!response.ok) {
+      console.error('Error saving file info');
+      return;
+    }
+
+    console.log('File info saved successfully');
+    return await response.json();
   };
 
   const removeFile = (index: number) => {
@@ -143,6 +156,11 @@ export const DropZone = () => {
             ))}
         </div>
       </CardContent>
+      <CardFooter>
+        <Button onClick={shareFiles} disabled={uploadedFiles.length === 0}>
+          Share Files
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

@@ -1,4 +1,4 @@
-export const generateUniqueId = (length: number = 6): string => {
+export const generateUniqueShareLink = (length: number = 6): string => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   let result = '';
   for (let i = 0; i < length; i++) {

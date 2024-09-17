@@ -18,6 +18,7 @@ model FileInfo {
   id        String   @id @default(uuid()) @db.Uuid
   fileName  String
   fileSize  Int
+  key       String  @unique
   mimeType  String
   shares    ShareFileInfo[]
   createdAt DateTime @default(now())
@@ -27,7 +28,7 @@ model FileInfo {
 model Share {
   id         String   @id @default(uuid()) @db.Uuid
   shareLink  String   @unique
-  expiresAt  DateTime
+  expiresAt  DateTime?
   files      ShareFileInfo[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
