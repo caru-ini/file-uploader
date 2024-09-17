@@ -17,7 +17,6 @@ datasource db {
 model FileInfo {
   id        String   @id @default(uuid()) @db.Uuid
   fileName  String
-  filePath  String
   fileSize  Int
   mimeType  String
   shares    ShareFileInfo[]
