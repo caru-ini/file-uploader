@@ -137,7 +137,7 @@ export const DropZone = () => {
                     <Minus />
                   </Button>
                 ) : (
-                  <span className='text-muted-foreground'>{uploadProgress[index]}%</span>
+                  <span className='text-muted-foreground'>{uploadProgress[file.name]}%</span>
                 )}
               </div>
             ))}
