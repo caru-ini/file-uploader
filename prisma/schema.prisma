@@ -15,12 +15,30 @@ datasource db {
 }
 
 model FileInfo {
-  id        String   @id @default(cuid())
-  uniqueId  String
+  id        String   @id @default(uuid()) @db.Uuid
   fileName  String
-  fileType  String
+  filePath  String
+  fileSize  Int
+  mimeType  String
+  shares    ShareFileInfo[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
 
-  @@index([uniqueId])
+model Share {
+  id         String   @id @default(uuid()) @db.Uuid
+  shareLink  String   @unique
+  expiresAt  DateTime
+  files      ShareFileInfo[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ShareFileInfo {
+  share      Share    @relation(fields: [shareId], references: [id])
+  shareId    String   @db.Uuid
+  fileInfo   FileInfo @relation(fields: [fileInfoId], references: [id])
+  fileInfoId String   @db.Uuid
+
+  @@id([shareId, fileInfoId])
 }
