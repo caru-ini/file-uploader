@@ -62,7 +62,7 @@ export const domain = new Hono()
       return c.json({ message: 'Error fetching files' }, 500);
     }
   })
-  .post('/share', async (c) => {
+  .post('/shares', async (c) => {
     const { shareLink, keys } = await c.req.json();
 
     const finalShareLink = shareLink || generateUniqueShareLink();
@@ -93,28 +93,23 @@ export const domain = new Hono()
     const shareLink = c.req.param('shareLink');
 
     if (!shareLink) {
-      return c.json({ message: 'Invalid share link' }, 400);
+      throw new Error('Invalid share link');
     }
 
-    try {
-      const share = await prisma.share.findUnique({
-        where: {
-          shareLink,
-        },
-        include: {
-          files: {
-            include: {
-              fileInfo: true,
-            },
+    const share = await prisma.share.findUnique({
+      where: {
+        shareLink,
+      },
+      include: {
+        files: {
+          include: {
+            fileInfo: true,
           },
         },
-      });
+      },
+    });
 
-      return c.json(share);
-    } catch (error) {
-      console.error('Error fetching share:', error);
-      return c.json({ message: 'Error fetching share' }, 500);
-    }
+    return c.json(share);
   })
   .get('/download/:key', async (c) => {
     const key = c.req.param('key');

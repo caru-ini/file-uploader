@@ -1,8 +1,9 @@
 'use client';
 import { useUploader } from '@/app/hooks/useUploader';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { FolderOpen, Minus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Copy, FolderOpen } from 'lucide-react';
+import { Files } from './files';
 
 export const DropZone = () => {
   const {
@@ -15,55 +16,62 @@ export const DropZone = () => {
     open,
     removeFile,
     shareFiles,
+    shareLink,
   } = useUploader();
 
   return (
-    <Card className='mx-auto w-full max-w-md'>
-      <CardContent className='flex flex-col items-center gap-y-1 p-6'>
+    <Card className='mx-auto w-full max-w-4xl'>
+      <CardContent className='flex flex-col gap-6 p-6'>
         <div
           {...getRootProps()}
-          className={`w-full cursor-pointer rounded-lg border-2 border-dashed p-8 text-center ${
-            isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+          className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+            isDragActive ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
           }`}
           onClick={open}
         >
           <input {...getInputProps()} />
-          <FolderOpen className='mx-auto size-12' />
-          <div className='space-y-2'>
-            <p className='text-sm'>Drag and drop your files here</p>
-            <p className='text-sm'>or</p>
+          <FolderOpen className='mx-auto size-12 text-muted-foreground' />
+          <div className='mt-4 space-y-2'>
+            <p className='text-sm text-muted-foreground'>Drag and drop your files here</p>
+            <p className='text-sm text-muted-foreground'>or</p>
             <Button>Select files</Button>
           </div>
         </div>
-        <div className='w-full space-y-2 rounded-md bg-secondary/50 p-3'>
-          <p>Uploaded Files</p>
-          {files.length > 0 &&
-            files.map((file, index) => (
-              <div key={file.name} className='flex w-full items-center justify-between gap-x-1'>
-                <p className='max-w-[300px] truncate text-sm' aria-label={file.name}>
-                  {file.name}
-                </p>
-                {uploadProgress[file.name] === 100 ? (
-                  <Button
-                    className='text-destructive hover:text-destructive'
-                    onClick={() => removeFile(index)}
-                    variant={'ghost'}
-                    size={'icon'}
-                  >
-                    <Minus />
-                  </Button>
-                ) : (
-                  <span className='text-muted-foreground'>{uploadProgress[file.name]}%</span>
-                )}
-              </div>
-            ))}
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button onClick={shareFiles} disabled={uploadedFiles.length === 0}>
-          Share Files
+
+        {files.length > 0 && (
+          <div className='rounded-lg bg-muted p-4'>
+            <h3 className='mb-2 font-semibold'>Uploaded Files</h3>
+            <Files files={files} uploadProgress={uploadProgress} removeFile={removeFile} />
+          </div>
+        )}
+
+        <Button onClick={shareFiles} disabled={uploadedFiles.length === 0} className='w-full'>
+          Generate Share Link
         </Button>
-      </CardFooter>
+
+        {shareLink && (
+          <div className='rounded-lg bg-muted p-4'>
+            <h3 className='mb-2 font-semibold text-primary'>🎉 Share Link Generated!</h3>
+            <div className='flex items-center gap-2 rounded-md border border-input bg-background'>
+              <input
+                onClick={(e) => e.currentTarget.select()}
+                className='flex-1 bg-transparent px-3 py-2 text-sm focus:outline-none'
+                value={shareLink}
+                readOnly
+              />
+              <Button
+                variant='ghost'
+                size='icon'
+                onClick={() => navigator.clipboard.writeText(shareLink)}
+                className='shrink-0'
+              >
+                <Copy className='size-4' />
+                <span className='sr-only'>Copy share link</span>
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 };

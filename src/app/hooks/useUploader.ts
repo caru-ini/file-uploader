@@ -1,11 +1,13 @@
 import { client } from '@/lib/hono';
+import { FileInfo } from '@prisma/client';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 export const useUploader = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<FileInfo[]>([]);
+  const [shareLink, setShareLink] = useState<string | null>(null);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -45,7 +47,14 @@ export const useUploader = () => {
             });
 
             if (fileInfo) {
-              setUploadedFiles((prevFiles) => [...prevFiles, fileInfo.key]);
+              setUploadedFiles((prevFiles) => [
+                ...prevFiles,
+                {
+                  ...fileInfo,
+                  createdAt: new Date(fileInfo.createdAt),
+                  updatedAt: new Date(fileInfo.updatedAt),
+                },
+              ]);
             }
           } else {
             console.error('File upload failed');
@@ -64,16 +73,22 @@ export const useUploader = () => {
   );
 
   const shareFiles = async () => {
-    const keys = uploadedFiles;
-    if (keys.length === 0) {
+    if (uploadedFiles.length === 0) {
       console.error('No files uploaded');
       return;
     }
-    const response = await client.api.share.$post({ json: { keys } });
+    const keys = uploadedFiles.map((file) => file.key);
+    const response = await client.api.shares.$post({ json: { keys } });
     if (!response.ok) {
       console.error('Error creating share link');
       return await response.json();
     }
+    const { shareLink } = await response.json();
+    setShareLink(
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:3000/shares/${shareLink}`
+        : `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/shares/${shareLink}`,
+    );
     console.log('Share link created successfully');
   };
 
@@ -115,5 +130,6 @@ export const useUploader = () => {
     open,
     removeFile,
     shareFiles,
+    shareLink,
   };
 };
