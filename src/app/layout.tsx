@@ -1,4 +1,5 @@
 import { Header } from '@/components/layout/header';
+import { Providers } from '@/components/layout/providers';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -19,8 +20,10 @@ export default function RootLayout({
   return (
     <html lang='ja'>
       <body className={cn(inter.className, 'flex min-h-svh flex-col')}>
-        <Header />
-        {children}
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

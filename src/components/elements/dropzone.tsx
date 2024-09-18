@@ -1,11 +1,10 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { client } from '@/lib/hono';
 import { FolderOpen, Minus } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-
-import { client } from '@/lib/hono';
 
 export const DropZone = () => {
   const [files, setFiles] = useState<File[]>([]);
