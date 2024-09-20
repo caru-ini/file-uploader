@@ -1,7 +1,7 @@
 'use client';
-import { useUploader } from '@/app/hooks/useUploader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useUploader } from '@/hooks/useUploader';
 import { Copy, FolderOpen } from 'lucide-react';
 import { Files } from './files';
 
