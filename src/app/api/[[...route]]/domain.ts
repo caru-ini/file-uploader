@@ -42,8 +42,8 @@ export const domain = new Hono()
     return c.json(fileInfo);
   })
 
-  .get('/files', async (c) => {
-    const id = c.req.query('id');
+  .get('/files/:id', async (c) => {
+    const id = c.req.param('id');
 
     if (!id) {
       return c.json({ message: 'Invalid ID' }, 400);

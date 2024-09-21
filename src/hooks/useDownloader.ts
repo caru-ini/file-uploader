@@ -1,5 +1,4 @@
 import { client } from '@/lib/hono';
-import { ShareFileInfo } from '@prisma/client';
 import { useCallback } from 'react';
 import useSWR from 'swr';
 
@@ -11,18 +10,17 @@ const fetcher = async (url: string) => {
   const response = await client.api.shares[':shareLink'].$get({ param: { shareLink: url } });
   if (response.ok) {
     const data = await response.json();
-    return data || [];
+    return data;
   } else {
     console.error('Error fetching files', response);
-    return [];
+    return null;
   }
 };
 
 export const useDownloader = ({ shareLink }: useDownloaderProps) => {
   const { data, error, isLoading } = useSWR(shareLink, fetcher);
 
-  const files = data as ShareFileInfo[];
-
+  const files = data?.files || [];
   if (error) {
     console.error('Error fetching files', error);
   }

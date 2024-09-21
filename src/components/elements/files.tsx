@@ -17,10 +17,10 @@ type FileType = {
 };
 
 type FilesProps = {
-  files: FileType[];
+  files: FileType[] | any[];
   uploadProgress?: Record<string, number>;
   removeFile?: (index: number) => void;
-  downloadFile?: (index: number) => void;
+  downloadFile?: (key: string) => void;
 };
 
 export const Files: React.FC<FilesProps> = ({
@@ -80,7 +80,7 @@ export const Files: React.FC<FilesProps> = ({
                   <TableCell>
                     <Button
                       className='text-primary hover:text-primary'
-                      onClick={() => downloadFile(index)}
+                      onClick={() => downloadFile(file.key)}
                       variant='ghost'
                       size='icon'
                     >
