@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useUploader } from '@/hooks/useUploader';
 import { Copy, FolderOpen } from 'lucide-react';
-import { Files } from './files';
+import { UploadFiles } from './upload-files';
 
 export const DropZone = () => {
   const {
@@ -41,7 +41,7 @@ export const DropZone = () => {
         {files.length > 0 && (
           <div className='rounded-lg bg-muted p-4'>
             <h3 className='mb-2 font-semibold'>Uploaded Files</h3>
-            <Files files={files} uploadProgress={uploadProgress} removeFile={removeFile} />
+            <UploadFiles files={files} uploadProgress={uploadProgress} removeFile={removeFile} />
           </div>
         )}
 

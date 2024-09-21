@@ -1,5 +1,5 @@
 'use client';
-import { Files } from '@/components/elements/files';
+import { DownloadFiles } from '@/components/elements/download-files';
 import Protected from '@/components/layout/protected';
 import { useDownloader } from '@/hooks/useDownloader';
 import { useParams } from 'next/navigation';
@@ -22,12 +22,12 @@ export default function Share() {
     <Protected>
       <main className='container flex flex-1 flex-col items-center justify-center'>
         {files.length > 0 ? (
-          <Files
+          <DownloadFiles
             files={files.map((file) => ({
               name: file.fileInfo.fileName,
               size: file.fileInfo.fileSize,
               type: file.fileInfo.mimeType,
-              ...file,
+              key: file.fileInfo.key,
             }))}
             downloadFile={downloadFile}
           />
